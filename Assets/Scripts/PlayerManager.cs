@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Mirror;
 using Steamworks;
 using TMPro;
-using Unity.Collections;
 using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour

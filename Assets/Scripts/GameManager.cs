@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using Mirror;
-using Mirror.Examples.Basic;
-using Unity.VisualScripting;
 
 public class GameManager : NetworkManager
 {
@@ -13,8 +11,6 @@ public class GameManager : NetworkManager
     {
         if (instance == null){
             instance = this;
-        } else if (instance != this){
-            Destroy(gameObject);
         }
     }
 
