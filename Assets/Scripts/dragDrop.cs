@@ -76,7 +76,7 @@ public class dragDrop : NetworkBehaviour
     }
 
     public void startDrag(){
-        if (isPlaced){
+        if (isPlaced && PlayerHelper.instance.isTurn(PlayerHelper.instance.isFirst)){
             if (isFront(transform.parent.gameObject, false)){
                 startParent = transform.parent.gameObject;
                 target = getTarget(transform.parent.gameObject);
@@ -86,7 +86,7 @@ public class dragDrop : NetworkBehaviour
                 }
             }
         } else {
-            if (canDrag){
+            if (canDrag && PlayerHelper.instance.isTurn(PlayerHelper.instance.isFirst)){
                 startParent = transform.parent.gameObject;
                 isDragging = true;
             }
@@ -107,10 +107,6 @@ public class dragDrop : NetworkBehaviour
                     if (dropZone.transform.childCount<1){
                         canDrag = false;
                         isPlaced = true;
-                        foreach(GameObject i in locs){
-                            print(i);
-                        }
-                        print(dropZone);
                         PlayerManager.CmdPlace(dropZone, opposite[locs.IndexOf(dropZone)], gameObject);
                     } else {
                         transform.SetParent(startParent.transform, false);

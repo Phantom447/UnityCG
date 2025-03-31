@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1930473289663761251}
   - component: {fileID: 7987148387689565966}
   - component: {fileID: 2329726343747836011}
-  - component: {fileID: 6488969404448233378}
   - component: {fileID: 5237182521223376196}
   m_Layer: 5
   m_Name: drop
@@ -149,40 +148,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 50, y: 75}
   m_EdgeRadius: 0
---- !u!114 &6488969404448233378
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3437815561577365470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 3559192806372035628}
-  syncPosition: 1
-  syncRotation: 0
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 0
-  interpolatePosition: 1
-  interpolateRotation: 0
-  interpolateScale: 1
-  coordinateSpace: 0
-  timelineOffset: 1
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChangeCorrectionMultiplier: 2
-  useFixedUpdate: 0
-  rotationSensitivity: 0.01
-  positionPrecision: 0.01
-  scalePrecision: 0.01
 --- !u!114 &5237182521223376196
 MonoBehaviour:
   m_ObjectHideFlags: 0

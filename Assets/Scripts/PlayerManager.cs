@@ -10,7 +10,7 @@ public class PlayerManager : NetworkBehaviour
     public GameObject card1;
     public GameObject p1, p2;
     public GameObject drop;
-    private string hostid, clientid;
+    private string hostId, clientId;
     private bool coin;
     private PlayerHelper PlayerHelper;
 
@@ -18,14 +18,14 @@ public class PlayerManager : NetworkBehaviour
         base.OnStartClient();
         p1 = GameObject.Find("p1");
         p2 = GameObject.Find("p2");
-        clientid = SteamFriends.GetPersonaName();
         PlayerHelper = PlayerHelper.instance;
+        clientId = PlayerHelper.clientId;
     }
     [Server]
     public override void OnStartServer(){
         base.OnStartServer();
-        hostid = SteamFriends.GetPersonaName();
-        Debug.Log("test");
+        PlayerHelper = PlayerHelper.instance;
+        hostId = PlayerHelper.hostId;
     }
 
     [Command]
@@ -78,7 +78,7 @@ public class PlayerManager : NetworkBehaviour
     }
     [ClientRpc]
     void RpcSetTurn(bool result){
-        if (clientid == hostid){
+        if (clientId == hostId){
             coin = result;
         } else {
             coin = !result;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Mirror;
+using Steamworks;
 using UnityEngine;
 
 public class PlayerHelper : NetworkBehaviour
@@ -7,10 +8,26 @@ public class PlayerHelper : NetworkBehaviour
     public static PlayerHelper instance = null;
     public List<GameObject> locs = new List<GameObject>();
     public List<GameObject> opposite = new List<GameObject>();
+    public bool isFirst;
+    public string hostId, clientId;
     [SyncVar]
     public int turn;
-    public bool isFirst;
+    [SyncVar]
+    public int hostSanity;
+    [SyncVar]
+    public int clientSanity;
 
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        clientId = SteamFriends.GetPersonaName();
+    }
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        hostId = SteamFriends.GetPersonaName();
+    }
 
     void Awake()
     {
