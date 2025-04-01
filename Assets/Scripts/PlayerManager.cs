@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mirror;
 using Steamworks;
@@ -35,11 +36,15 @@ public class PlayerManager : NetworkBehaviour
             PlayerHelper.turn++;
             GameObject p1Card = Instantiate(card1, new Vector2(0,0),Quaternion.identity);
             NetworkServer.Spawn(p1Card, connectionToClient);
-            RpcShowCard(p1Card, UnityEngine.Random.Range(1,10).ToString(), UnityEngine.Random.Range(1,10).ToString());
+            p1Card.AddComponent(typeof(Card));
+            RpcShowCard(p1Card);
         }
     }
     [ClientRpc]
-    void RpcShowCard(GameObject card, string hp, string atk){
+    void RpcShowCard(GameObject card){
+        print(card.GetComponent<Card>());
+        String hp = card.GetComponent<Card>().hp.ToString();
+        String atk = card.GetComponent<Card>().atk.ToString();
         card.GetComponentsInChildren<TMP_Text>()[0].text = hp;
         card.GetComponentsInChildren<TMP_Text>()[1].text = atk;
         card.transform.SetParent(isOwned?p1.transform:p2.transform,false);
