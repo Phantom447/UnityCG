@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class dragDrop : NetworkBehaviour
 {
-    private bool isDragging = false;
+    private bool isDragging;
     private bool overDrop;
     private GameObject dropZone;
     private int count;
@@ -18,6 +18,24 @@ public class dragDrop : NetworkBehaviour
     private PlayerManager PlayerManager;
     private PlayerHelper PlayerHelper;
     private GameObject target;
+
+    public void Awake(){
+        Canvas = GameObject.Find("Main Canvas");
+    }
+    void Start(){
+        canDrag = isOwned;
+        NetworkIdentity networkIdentity = NetworkClient.connection.identity;
+        PlayerManager = networkIdentity.GetComponent<PlayerManager>();
+        PlayerHelper = PlayerHelper.instance;
+        locs = PlayerHelper.locs;
+        opposite = PlayerHelper.opposite;
+    }
+    void Update(){
+        if (isDragging){
+            transform.position = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
+            transform.SetParent(Canvas.transform, true);
+        }
+    }
 
     private bool isFront(GameObject pos, bool isEnemy){
         if (isEnemy){
@@ -41,26 +59,6 @@ public class dragDrop : NetworkBehaviour
         return target;
     }
 
-    public void Awake(){
-        Canvas = GameObject.Find("Main Canvas");
-    }
-
-    void Start(){
-        canDrag = isOwned;
-        NetworkIdentity networkIdentity = NetworkClient.connection.identity;
-        PlayerManager = networkIdentity.GetComponent<PlayerManager>();
-        PlayerHelper = PlayerHelper.instance;
-        locs = PlayerHelper.locs;
-        opposite = PlayerHelper.opposite;
-    }
-
-    void Update(){
-        if (isDragging){
-            transform.position = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
-            transform.SetParent(Canvas.transform, true);
-        }
-    }
-
     private void OnCollisionEnter2D(Collision2D collision){
         count++;
         overDrop = true;
@@ -75,19 +73,21 @@ public class dragDrop : NetworkBehaviour
     }
 
     public void startDrag(){
-        if (isPlaced && PlayerHelper.instance.isTurn(PlayerHelper.instance.isFirst)){
-            if (isFront(transform.parent.gameObject, false)){
-                startParent = transform.parent.gameObject;
-                target = getTarget(transform.parent.gameObject);
-                if (target.transform.childCount>=1){
-                    target.transform.GetChild(0).gameObject.GetComponent<Outline>().enabled = true;
+        if (PlayerHelper.instance.isTurn(PlayerHelper.instance.isFirst)){
+            if (isPlaced){
+                if (isFront(transform.parent.gameObject, false)){
+                    startParent = transform.parent.gameObject;
+                    target = getTarget(transform.parent.gameObject);
+                    if (target.transform.childCount>=1){
+                        target.transform.GetChild(0).gameObject.GetComponent<Outline>().enabled = true;
+                        isDragging = true;
+                    }
+                }
+            } else {
+                if (canDrag && ((PlayerHelper.clientId == PlayerHelper.hostId)?PlayerHelper.hostSanity:PlayerHelper.clientSanity) >= gameObject.GetComponent<Card>().cost){
+                    startParent = transform.parent.gameObject;
                     isDragging = true;
                 }
-            }
-        } else {
-            if (canDrag && PlayerHelper.instance.isTurn(PlayerHelper.instance.isFirst)){
-                startParent = transform.parent.gameObject;
-                isDragging = true;
             }
         }
     }
@@ -106,6 +106,14 @@ public class dragDrop : NetworkBehaviour
                     if (dropZone.transform.childCount<1){
                         canDrag = false;
                         isPlaced = true;
+                        if (isOwned){
+                            if (PlayerHelper.clientId == PlayerHelper.hostId){
+                                PlayerHelper.hostSanity -= gameObject.GetComponent<Card>().cost;
+                            } else {
+                                //using Cmd because SyncVar has to be updated on host
+                                PlayerManager.CmdUpdateClientSanity(-gameObject.GetComponent<Card>().cost);
+                            }
+                        }
                         PlayerManager.CmdPlace(dropZone, opposite[locs.IndexOf(dropZone)], gameObject);
                     } else {
                         transform.SetParent(startParent.transform, false);

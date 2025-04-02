@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using Mirror;
 using Steamworks;
 using UnityEngine;
@@ -13,16 +14,18 @@ public class PlayerHelper : NetworkBehaviour
     public string hostId, clientId;
     [SyncVar (hook = nameof(newTurn))]
     public int turn;
-    [SyncVar]
+    [SyncVar (hook = nameof(updateHostSanity))]
     public int hostSanity;
-    [SyncVar]
+    [SyncVar (hook = nameof(updateClientSanity))]
     public int clientSanity;
+    public string[] cards;
 
 
     public override void OnStartClient()
     {
         base.OnStartClient();
         clientId = SteamFriends.GetPersonaName();
+        cards = File.ReadAllLines("Assets/Scripts/test.csv");
     }
     public override void OnStartServer()
     {
@@ -43,10 +46,22 @@ public class PlayerHelper : NetworkBehaviour
     }
 
     public void newTurn(int oldTurn, int newTurn){
+        hostSanity = newTurn;
+        clientSanity = newTurn;
         foreach (sanityDisplay display in sanityDisplays){
             display.setClientSanity(newTurn);
             display.setHostSanity(newTurn);
         }
         turnDisplay.instance.updateTurn();
+    }
+    public void updateClientSanity(int oldClientSanity, int newClientSanity){
+        foreach (sanityDisplay display in sanityDisplays){
+            display.setClientSanity(newClientSanity);
+        }
+    }
+    public void updateHostSanity(int oldHostSanity, int newHostSanity){
+        foreach (sanityDisplay display in sanityDisplays){
+            display.setHostSanity(newHostSanity);
+        }
     }
 }

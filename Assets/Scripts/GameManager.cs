@@ -21,7 +21,7 @@ public class GameManager : NetworkManager
         if (count==2){
             NetworkIdentity networkIdentity = NetworkClient.connection.identity;
             PlayerManager = networkIdentity.GetComponent<PlayerManager>();
-            PlayerManager.CmdSetTurn();
+            PlayerManager.CmdCoinFlip();
         }
     }
 
