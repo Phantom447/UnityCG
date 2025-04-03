@@ -39,11 +39,11 @@ public class dragDrop : NetworkBehaviour
 
     private bool isFront(GameObject pos, bool isEnemy){
         if (isEnemy){
-            if (opposite.IndexOf(pos)%2==1){
+            if (opposite.IndexOf(pos)%3==2){
                 return opposite[opposite.IndexOf(pos)-1].transform.childCount<1;
             }
         } else {
-            if (locs.IndexOf(pos)%2==1){
+            if (locs.IndexOf(pos)%3==2){
                 return locs[locs.IndexOf(pos)-1].transform.childCount<1;
             }
         }
@@ -51,8 +51,8 @@ public class dragDrop : NetworkBehaviour
     }
     private GameObject getTarget(GameObject origin){
         GameObject target = null;
-        int pos = (int)Math.Floor((double)locs.IndexOf(origin)/2);
-        for (int i = pos*2;i<(pos*2)+2;i++){
+        int pos = (int)Math.Floor((double)locs.IndexOf(origin)/3);
+        for (int i = pos*3;i<(pos*3)+3;i++){
             target = opposite[i];
             if (target != null && target.transform.childCount>0){return target;}
         }
@@ -98,8 +98,8 @@ public class dragDrop : NetworkBehaviour
                 target.transform.GetChild(0).gameObject.GetComponent<Outline>().enabled = false;
                 if (overDrop && dropZone==target){
                     PlayerManager.CmdAtk(transform.gameObject, target.transform.GetChild(0).gameObject);
-                    target = null;
                 }
+                target = null;
                 transform.SetParent(startParent.transform, false);
             } else{
                 if (overDrop && opposite.IndexOf(dropZone)==-1){

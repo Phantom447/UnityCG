@@ -10,8 +10,8 @@ using UnityEngine;
 public class PlayerManager : NetworkBehaviour
 {
     private int count;
-    public GameObject card1;
-    public GameObject p1, p2;
+    public GameObject card;
+    public GameObject p1Bench, p2Bench;
     public GameObject drop;
     private string hostId, clientId;
     private bool coin;
@@ -19,8 +19,8 @@ public class PlayerManager : NetworkBehaviour
 
     public override void OnStartClient(){
         base.OnStartClient();
-        p1 = GameObject.Find("p1");
-        p2 = GameObject.Find("p2");
+        p1Bench = GameObject.Find("p1Bench");
+        p2Bench = GameObject.Find("p2Bench");
         PlayerHelper = PlayerHelper.instance;
         clientId = PlayerHelper.clientId;
     }
@@ -36,7 +36,7 @@ public class PlayerManager : NetworkBehaviour
         if (count<5 && PlayerHelper.isTurn(isFirst)){
             count++;
             PlayerHelper.turn++;
-            GameObject p1Card = Instantiate(card1, new Vector2(0,0),Quaternion.identity);
+            GameObject p1Card = Instantiate(card, new Vector2(0,0),Quaternion.identity);
             NetworkServer.Spawn(p1Card, connectionToClient);
             p1Card.AddComponent(typeof(Card));
             p1Card.GetComponent<Card>().id = UnityEngine.Random.Range(0,2);
@@ -52,7 +52,7 @@ public class PlayerManager : NetworkBehaviour
         card.GetComponent<Card>().hp = int.Parse(hp);
         card.GetComponent<Card>().atk = int.Parse(atk);
         card.GetComponent<Card>().cost = int.Parse(cost);
-        card.transform.SetParent(isOwned?p1.transform:p2.transform,false);
+        card.transform.SetParent(isOwned?p1Bench.transform:p2Bench.transform,false);
     }
 
     [Command]
@@ -62,7 +62,19 @@ public class PlayerManager : NetworkBehaviour
     }
     [ClientRpc]
     void RpcPlace(GameObject dropZone, GameObject opposite, GameObject card){
-        card.transform.SetParent(isOwned?dropZone.transform:opposite.transform, false);
+        List<GameObject> side = isOwned?PlayerHelper.locs:PlayerHelper.opposite;
+        GameObject pos = isOwned?dropZone:opposite;
+        card.transform.SetParent(pos.transform, false);
+        int index = side.IndexOf(pos);
+        if (index%3==0){
+            if (side[index+1].transform.childCount>0){
+                side[index+1].transform.GetChild(0).SetParent(side[index+2].transform);
+            }
+        } else if (index%3==2){
+            if (side[index-1].transform.childCount>0){
+                side[index-1].transform.GetChild(0).SetParent(side[index-2].transform);
+            }
+        }
     }
 
     [Command]
@@ -85,15 +97,17 @@ public class PlayerManager : NetworkBehaviour
             }
             Destroy(target);
             int overflow = (originAtk - targetHp)/2;
-            if (pos%2==0){
-                if (side[pos+1].transform.childCount>0){
-                    GameObject card = side[pos+1].transform.GetChild(0).gameObject;
+            if (pos%3==0){
+                if (side[pos+2].transform.childCount>0){
+                    GameObject card = side[pos+2].transform.GetChild(0).gameObject;
                     int hp = card.GetComponentInChildren<Card>().hp;
                     if (hp <= overflow){
                         Destroy(card);
                     } else {
                         card.GetComponentsInChildren<TMP_Text>()[0].text = "hp: "+(hp - overflow).ToString();
                         card.GetComponent<Card>().hp -= overflow;
+                        Transform parent = side[pos+1].transform;
+                        card.transform.SetParent(parent);
                     }
                 }
             }
@@ -126,5 +140,10 @@ public class PlayerManager : NetworkBehaviour
     [Command]
     public void CmdUpdateClientSanity(int val){
         PlayerHelper.clientSanity += val;
+    }
+
+    [Command]
+    public void CmdUpdateClientHealth(int val){
+        PlayerHelper.clientHealth += val;
     }
 }

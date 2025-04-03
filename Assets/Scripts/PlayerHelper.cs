@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Mirror;
 using Steamworks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerHelper : NetworkBehaviour
@@ -10,6 +11,7 @@ public class PlayerHelper : NetworkBehaviour
     public List<GameObject> locs = new List<GameObject>();
     public List<GameObject> opposite = new List<GameObject>();
     public List<sanityDisplay> sanityDisplays = new List<sanityDisplay>();
+    public List<healthDisplay> healthDisplays = new List<healthDisplay>();
     public bool isFirst;
     public string hostId, clientId;
     [SyncVar (hook = nameof(newTurn))]
@@ -18,6 +20,10 @@ public class PlayerHelper : NetworkBehaviour
     public int hostSanity;
     [SyncVar (hook = nameof(updateClientSanity))]
     public int clientSanity;
+    [SyncVar (hook = nameof(updateHostHealth))]
+    public int hostHealth;
+    [SyncVar (hook = nameof(updateClientHealth))]
+    public int clientHealth;
     public string[] cards;
 
 
@@ -62,6 +68,17 @@ public class PlayerHelper : NetworkBehaviour
     public void updateHostSanity(int oldHostSanity, int newHostSanity){
         foreach (sanityDisplay display in sanityDisplays){
             display.setHostSanity(newHostSanity);
+        }
+    }
+
+    public void updateHostHealth(int oldHostHealth, int newHostHealth){
+        foreach (healthDisplay display in healthDisplays){
+            display.setHostHealth(newHostHealth);
+        }
+    }
+    public void updateClientHealth(int oldClientHealth, int newClientHealth){
+        foreach (healthDisplay display in healthDisplays){
+            display.setClientHealth(newClientHealth);
         }
     }
 }
